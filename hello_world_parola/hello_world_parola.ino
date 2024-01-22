@@ -12,7 +12,7 @@
 MD_Parola P = MD_Parola(HARDWARE_TYPE,DATA_PIN, CLK_PIN, CS_PIN, MAX_DEVICES);
 void setup() {
   P.begin();
-  P.displayText("Hello Henry, how are you today?   bad", PA_CENTER, 50, 0, PA_SCROLL_LEFT, PA_SCROLL_LEFT);
+  P.displayText("Hello World!", PA_CENTER, 50, 0, PA_SCROLL_LEFT, PA_SCROLL_LEFT);
 }
 
 void loop(void)
