@@ -1,4 +1,6 @@
-void setup() {  // initialize digital pin 13 as an output.
+// enable a blink output on each Nano pin
+
+void setup() {
   pinMode(A0, OUTPUT);
   pinMode(A1, OUTPUT);
   pinMode(A2, OUTPUT);
