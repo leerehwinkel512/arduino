@@ -3,7 +3,7 @@
 // D11 MOSO
 // D12 MISO
 // D13 SCK
-// D7 CS (pick whatever)
+// D7 CS
 
 #include <SD.h>
 
