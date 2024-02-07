@@ -14,12 +14,16 @@
 #include <SD.h>
 
 const int CS_PIN = 7;
+const int LED_PIN = 5;
 
 Adafruit_MPL3115A2 baro;
 
 void setup() {
   Serial.begin(9600);
   while(!Serial);
+
+  pinMode(LED_PIN, OUTPUT);
+  digitalWrite(LED_PIN, HIGH);
 
   Serial.println("Init SD");
   pinMode(CS_PIN, OUTPUT);
@@ -42,6 +46,7 @@ void setup() {
   datafile.println("Temp_F");    
   datafile.close();  
 
+
   Serial.println("Init Baro");
   if (!baro.begin()) {
     Serial.println("Baro Failure");
@@ -63,6 +68,14 @@ void loop() {
   float altitude_ft = baro.getAltitude() * 3.28084;
   float temperature_f = baro.getTemperature() * 9.0000 / 5.0000 + 32.0000;
 
+  Serial.print(timestamp);
+  Serial.print(",");  
+  Serial.print(pressure);
+  Serial.print(",");
+  Serial.print(altitude_ft);
+  Serial.print(",");  
+  Serial.println(temperature_f);  
+
   Serial.println("Save reading");
   File datafile = SD.open("data.csv", FILE_WRITE);
   datafile.print(timestamp);
@@ -74,5 +87,8 @@ void loop() {
   datafile.println(temperature_f);
   datafile.close();
 
+
+  digitalWrite(LED_PIN, LOW);
   delay(200);
+  digitalWrite(LED_PIN, HIGH);  
 }
