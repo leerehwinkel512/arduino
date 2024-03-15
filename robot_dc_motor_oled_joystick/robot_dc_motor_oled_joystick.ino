@@ -18,17 +18,20 @@ int x_pos;
 int y_pos;
 
 // Motor A connections
-int EN_A = 9;
-int IN1 = 8;
-int IN2 = 7;
+int EN_A = 10;
+int IN1 = 9;
+int IN2 = 8;
 
 // Motor B connections
-int IN3 = 6;
-int IN4 = 5;
-int EN_B = 4;
+int IN3 = 7;
+int IN4 = 6;
+int EN_B = 5;
 
 int motor_speed_A;
 int motor_speed_B;
+
+const int maxspeed_A = 100;
+const int maxspeed_B = 75;
 
 
 void setup() {
@@ -82,51 +85,51 @@ void loop() {
 
   // Motor A
   if (x_pos < 400){
-    motor_speed_A = map(x_pos, 400, 0, 0, 255);
+    motor_speed_A = map(x_pos, 400, 0, 0, maxspeed_A);
     digitalWrite(IN1, LOW);
     digitalWrite(IN2, HIGH);
     analogWrite(EN_A, motor_speed_A);
     sprintf(buf, "A Speed: + %d", motor_speed_A);
     display.println(buf);
   }
-  else if (x_pos>400 && x_pos <600){ // A off
-    digitalWrite(IN1, LOW);
-    digitalWrite(IN2, LOW);
-    sprintf(buf, "A Speed: off");
-    display.println(buf);
-  }
   else if (x_pos > 600){ // A Counter Clockwise
-    motor_speed_A = map(x_pos, 600, 1023, 0, 255);
+    motor_speed_A = map(x_pos, 600, 1023, 0, maxspeed_A);
     digitalWrite(IN1, HIGH);
     digitalWrite(IN2, LOW);
     analogWrite(EN_A, motor_speed_A);
     sprintf(buf, "A Speed: - %d", motor_speed_A);
     display.println(buf);    
   }
+  else { // A off
+    digitalWrite(IN1, LOW);
+    digitalWrite(IN2, LOW);
+    sprintf(buf, "A Speed: off");
+    display.println(buf);   
+  }    
 
   // Motor B
-  if (y_pos < 400){ // B Clockwise
-    motor_speed_B = map(y_pos, 400, 0, 0, 255);
+  if (x_pos < 400){ // B Clockwise
+    motor_speed_B = map(x_pos, 400, 0, 0, maxspeed_B);
     digitalWrite(IN3, LOW);
     digitalWrite(IN4, HIGH);
     analogWrite(EN_B, motor_speed_B);
     sprintf(buf, "B Speed: + %d", motor_speed_B);
     display.println(buf);    
   }
-  else if (y_pos>400 && y_pos <600){ // B off
-    digitalWrite(IN3, LOW);
-    digitalWrite(IN4, LOW);
-    sprintf(buf, "B Speed: off");
-    display.println(buf);    
-  }
-  else if (y_pos > 600){ // B Counter Clockwise
-    motor_speed_B = map(y_pos, 600, 1023, 0, 255);
+  else if (x_pos > 600){ // B Counter Clockwise
+    motor_speed_B = map(x_pos, 600, 1023, 0, maxspeed_B);
     digitalWrite(IN3, HIGH);
     digitalWrite(IN4, LOW);
     analogWrite(EN_B, motor_speed_B);
     sprintf(buf, "B Speed: - %d", motor_speed_B);
     display.println(buf);       
   }
+  else { // B off
+    digitalWrite(IN3, LOW);
+    digitalWrite(IN4, LOW);
+    sprintf(buf, "B Speed: off");
+    display.println(buf);    
+  }  
 
   display.display();
 }
