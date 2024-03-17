@@ -3,46 +3,55 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 
+#include <Stepper.h>
+
+const int stepsPerRev = 2038;
+#define step_in1 3
+#define step_in2 4
+#define step_in3 5
+#define step_in4 6
+
+Stepper stepper(stepsPerRev, step_in1, step_in3, step_in2, step_in4);
+
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
 #define OLED_RESET     -1
 #define SCREEN_ADDRESS 0x3C
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
-char buf[200]; 
+char buf[25]; 
 
 
 // Joystick Analog
-const int X_pin = 6;
-const int Y_pin = 7;
+const int X_pin = A6;
+const int Y_pin = A7;
 int x_pos;
 int y_pos;
 
 // Motor A connections
 int EN_A = 10;
-int IN1 = 9;
-int IN2 = 8;
+int IN1 = 11;
+int IN2 = 12;
 
 // Motor B connections
 int IN3 = 7;
-int IN4 = 6;
-int EN_B = 5;
+int IN4 = 8;
+int EN_B = 9;
 
 int motor_speed_A;
 int motor_speed_B;
 
 const int maxspeed_A = 100;
-const int maxspeed_B = 75;
+const int maxspeed_B = 100;
 
 
 void setup() {
-  Serial.begin(9600);
-
-  Serial.println("begin!");
+//  Serial.begin(9600);
+//  Serial.println("begin!");
 
   // init display
   if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
-    Serial.println(F("SSD1306 allocation failed"));
-    while(1);
+//    Serial.println(F("SSD1306 allocation failed"));
+    for(;;); // Don't proceed, loop forever
   }
   display.display();  // Adafruit logo
   delay(2000);
@@ -66,6 +75,9 @@ void setup() {
   // init joystick
   pinMode(X_pin, INPUT);
   pinMode(Y_pin, INPUT);
+
+  // init stepper
+  stepper.setSpeed(10);
 }
 
 void loop() {
@@ -76,11 +88,13 @@ void loop() {
   // display position
   display.clearDisplay();
   display.setCursor(0, 0);
+  display.println(F("Joystick"));
   sprintf(buf, "X: %d", x_pos);
   display.println(buf);  
   sprintf(buf, "Y: %d", y_pos);
   display.println(buf);
   display.println();
+  display.println(F("Motors"));  
 
 
   // Motor A
@@ -129,7 +143,20 @@ void loop() {
     digitalWrite(IN4, LOW);
     sprintf(buf, "B Speed: off");
     display.println(buf);    
-  }  
+  }
+
+  // Stepper
+  if (y_pos > 600){ // Turn Left
+    display.println("Stepper: Left");
+    stepper.step(-50);        
+  }
+  else if (y_pos < 400){ // Turn Right
+    display.println("Stepper: Right");
+    stepper.step(50);      
+  }
+  else {
+    display.println(F("Stepper: 0"));
+  }
 
   display.display();
 }
