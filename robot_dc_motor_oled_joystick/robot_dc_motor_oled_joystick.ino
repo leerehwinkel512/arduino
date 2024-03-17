@@ -13,6 +13,11 @@ const int stepsPerRev = 2038;
 
 Stepper stepper(stepsPerRev, step_in1, step_in3, step_in2, step_in4);
 
+int direction  = 0;
+
+const int turn_size = 50;
+const int turn_limit = 5;
+
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
 #define OLED_RESET     -1
@@ -146,16 +151,40 @@ void loop() {
   }
 
   // Stepper
-  if (y_pos > 600){ // Turn Left
-    display.println("Stepper: Left");
-    stepper.step(-50);        
+  if (y_pos > 800){ // Turn Left
+    if (direction > -turn_limit){
+      stepper.step(-turn_size);
+      direction = direction - 1;
+      display.println(F("Stepper: Left"));      
+    }
+    else{
+      display.println(F("Stepper: Limit"));
+    }
   }
-  else if (y_pos < 400){ // Turn Right
-    display.println("Stepper: Right");
-    stepper.step(50);      
+  else if (y_pos < 200){ // Turn Right
+    if (direction < turn_limit){
+      stepper.step(turn_size);
+      direction = direction + 1;
+      display.println(F("Stepper: Right"));      
+    }
+    else{
+      display.println(F("Stepper: Limit"));
+    }    
   }
-  else {
-    display.println(F("Stepper: 0"));
+  else { // center turn
+    if (direction < 0){
+      stepper.step(turn_size);
+      direction = direction + 1;
+      display.println(F("Stepper: Recenter"));
+    }
+    else if (direction > 0){
+      stepper.step(-turn_size);
+      direction = direction - 1;
+      display.println(F("Stepper: Recenter"));
+    }
+    else {
+      display.println(F("Stepper: Center"));
+    }
   }
 
   display.display();
