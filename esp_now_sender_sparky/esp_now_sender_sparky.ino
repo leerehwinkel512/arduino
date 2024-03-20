@@ -37,7 +37,7 @@ esp_now_peer_info_t peerInfo;
 // Callback function called when data is sent
 void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
 
-  // display position
+  // display data
   display.clearDisplay();
   display.setCursor(0, 0);
   display.println("Sending:");
@@ -131,5 +131,6 @@ void loop() {
   // Send message via ESP-NOW
   esp_err_t result = esp_now_send(receiverAddress, (uint8_t *) &myData, sizeof(myData));
 
-  delay(100);
+  delay(200);
+
 }

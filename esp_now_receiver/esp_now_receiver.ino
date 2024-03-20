@@ -26,10 +26,15 @@ void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len) {
   // copy message data to struct
   memcpy(&myData, incomingData, sizeof(myData));
 
+  // display data
   display.clearDisplay();
   display.setCursor(0, 0);
-  display.print("Received: ");
-  display.println(myData.a);
+  display.println("Sending:");
+  display.print("Speed: ");
+  display.println(myData.speed);
+  display.print("Direction: ");
+  display.println(myData.direction);
+  display.println();
   display.display();
 }
  
