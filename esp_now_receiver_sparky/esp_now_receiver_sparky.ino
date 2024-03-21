@@ -6,19 +6,22 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 
-#include <Stepper.h>
-
-const int stepsPerRev = 2038;
 #define step_in1 3
 #define step_in2 4
 #define step_in3 5
 #define step_in4 6
 
-Stepper stepper(stepsPerRev, step_in1, step_in3, step_in2, step_in4);
+int steps[4][4] = {
+  {HIGH, LOW, LOW, LOW},
+  {LOW, HIGH, LOW, LOW},
+  {LOW, LOW, HIGH, LOW},
+  {LOW, LOW, LOW, HIGH}
+};
 
 int direction  = 0;
-const int turn_size = 50;
-const int turn_limit = 5;
+const int step_delay = 10;
+const int turn_size = 5;
+const int turn_limit = 10;
 
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
@@ -43,6 +46,35 @@ typedef struct struct_message {
   int direction;
 } struct_message;
 struct_message myData;
+
+
+// stepper driver function
+void turnstepper(int step_num, int step_delay, int direction){
+
+  if (direction == 1) {
+    for(int j = 1; j<=step_num; j++){
+      for(int i = 0; i < 4; i++) {
+        digitalWrite(step_in1, steps[i][0]);
+        digitalWrite(step_in2, steps[i][1]);
+        digitalWrite(step_in3, steps[i][2]);
+        digitalWrite(step_in4, steps[i][3]);
+        delay(step_delay);
+      }
+    }
+  }
+  else if (direction == -1) {
+    for(int j = 1; j<=step_num; j++){
+      for(int i = 3; i >= 0; i--) {
+        digitalWrite(step_in1, steps[i][0]);
+        digitalWrite(step_in2, steps[i][1]);
+        digitalWrite(step_in3, steps[i][2]);
+        digitalWrite(step_in4, steps[i][3]);
+        delay(step_delay);
+      }
+    }
+  }
+
+}
 
 
 // Callback function executed when data is received
@@ -91,7 +123,7 @@ void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len) {
   // direction
   if (myData.direction > 0){ // Turn Left
     if (direction > -turn_limit){
-      stepper.step(-turn_size);
+      turnstepper(turn_size, step_delay, -1);
       direction = direction - 1;
       display.println("Stepper: Left");      
     }
@@ -101,7 +133,7 @@ void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len) {
   }
   else if (myData.direction < 0){ // Turn Right
     if (direction < turn_limit){
-      stepper.step(turn_size);
+      turnstepper(turn_size, step_delay, 1);
       direction = direction + 1;
       display.println("Stepper: Right");      
     }
@@ -111,12 +143,12 @@ void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len) {
   }
   else { // center turn
     if (direction < 0){
-      stepper.step(turn_size);
+      turnstepper(turn_size, step_delay, 1);
       direction = direction + 1;
       display.println("Stepper: Recenter");
     }
     else if (direction > 0){
-      stepper.step(-turn_size);
+      turnstepper(turn_size, step_delay, -1);
       direction = direction - 1;
       display.println("Stepper: Recenter");
     }
@@ -181,7 +213,10 @@ void setup() {
 	digitalWrite(IN4, LOW);
 
   // init stepper
-  stepper.setSpeed(10);
+  pinMode(step_in1, OUTPUT);
+  pinMode(step_in2, OUTPUT);
+  pinMode(step_in3, OUTPUT);
+  pinMode(step_in4, OUTPUT);
 }
 
 void loop() {
