@@ -10,6 +10,7 @@
 #define SCREEN_HEIGHT 64
 #define OLED_RESET     -1
 #define SCREEN_ADDRESS 0x3C
+
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 
@@ -26,15 +27,10 @@ void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len) {
   // copy message data to struct
   memcpy(&myData, incomingData, sizeof(myData));
 
-  // display data
   display.clearDisplay();
   display.setCursor(0, 0);
-  display.println("Sending:");
-  display.print("Speed: ");
-  display.println(myData.speed);
-  display.print("Direction: ");
-  display.println(myData.direction);
-  display.println();
+  display.print("Received: ");
+  display.println(myData.a);
   display.display();
 }
  

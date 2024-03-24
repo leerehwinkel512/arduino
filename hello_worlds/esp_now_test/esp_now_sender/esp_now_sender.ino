@@ -10,21 +10,13 @@
 #define SCREEN_HEIGHT 64
 #define OLED_RESET     -1
 #define SCREEN_ADDRESS 0x3C
+
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 
-// Joystick Analog
-const int X_pin = A6;
-const int Y_pin = A7;
-int x_pos;
-int y_pos;
-
-const int maxspeed = 100;
-
 // Define a message structure
 typedef struct struct_message {
-  int speed;
-  int direction;
+  int a;
 } struct_message;
 struct_message myData;
 
@@ -37,15 +29,11 @@ esp_now_peer_info_t peerInfo;
 // Callback function called when data is sent
 void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
 
-  // display position
   display.clearDisplay();
   display.setCursor(0, 0);
-  display.println("Sending:");
-  display.print("Speed: ");
-  display.println(myData.speed);
-  display.print("Direction: ");
-  display.println(myData.direction);
-  display.println();
+  display.print("Sending: ");
+  display.println(myData.a);
+  display.println();  
   display.println(status == ESP_NOW_SEND_SUCCESS ? "Success" : "Fail");
   display.display();
 }
@@ -95,41 +83,15 @@ void setup() {
     return;
   }
 
-  // init joystick
-  pinMode(X_pin, INPUT);
-  pinMode(Y_pin, INPUT);
-
 }
 
 void loop() {
-
-  x_pos = analogRead(X_pin);
-  y_pos = analogRead(Y_pin);
-
-  // Motor
-  if (x_pos < 1000){
-    myData.speed = map(x_pos, 1000, 0, 0, maxspeed);
-  }
-  else if (x_pos > 3000){
-    myData.speed = -1 * map(x_pos, 3000, 4095, 0, maxspeed);
-  }
-  else { // A off
-    myData.speed = 0; 
-  }
-
-  // Direction
-  if (y_pos < 500){
-    myData.direction = -1;
-  }
-  else if (y_pos > 3500){
-    myData.direction = 1;
-  }
-  else { // A off
-    myData.direction = 0;
-  }   
-
+ 
+  // generate random value
+  myData.a = random(1,20);
+  
   // Send message via ESP-NOW
   esp_err_t result = esp_now_send(receiverAddress, (uint8_t *) &myData, sizeof(myData));
 
-  delay(100);
+  delay(2000);
 }

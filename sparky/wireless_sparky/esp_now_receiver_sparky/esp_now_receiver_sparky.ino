@@ -12,10 +12,10 @@
 #define step_in4 6
 
 int steps[4][4] = {
-  {HIGH, LOW, LOW, LOW},
-  {LOW, HIGH, LOW, LOW},
-  {LOW, LOW, HIGH, LOW},
-  {LOW, LOW, LOW, HIGH}
+  {HIGH, HIGH, LOW,  LOW},
+  {LOW,  HIGH, HIGH, LOW},
+  {LOW,  LOW,  HIGH, HIGH},
+  {HIGH, LOW,  LOW,  HIGH}
 };
 
 int direction  = 0;
@@ -27,6 +27,7 @@ const int turn_limit = 10;
 #define SCREEN_HEIGHT 64
 #define OLED_RESET     -1
 #define SCREEN_ADDRESS 0x3C
+
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 
