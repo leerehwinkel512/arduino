@@ -20,7 +20,7 @@ const int Y_pin = A7;
 int x_pos;
 int y_pos;
 
-const int maxspeed = 100;
+const int maxspeed = 200;
 
 // Define a message structure
 typedef struct struct_message {

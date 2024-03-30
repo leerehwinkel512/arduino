@@ -18,10 +18,16 @@ int steps[4][4] = {
   {HIGH, LOW,  LOW,  HIGH}
 };
 
+unsigned long lastTransfer = 0;
+unsigned long currentTime;
+unsigned long timeSinceLastTransfer;
+const int waitTimeLimit = 1000;
+
 int direction  = 0;
 const int step_delay = 10;
 const int turn_size = 5;
 const int turn_limit = 10;
+
 
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
@@ -80,6 +86,9 @@ void turnstepper(int step_num, int step_delay, int direction){
 
 // Callback function executed when data is received
 void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len) {
+
+  // update kill time
+  lastTransfer = millis();
 
   // copy message data to struct
   memcpy(&myData, incomingData, sizeof(myData));
@@ -221,4 +230,24 @@ void setup() {
 }
 
 void loop() {
+
+  // check kill
+  currentTime = millis();
+  timeSinceLastTransfer = currentTime - lastTransfer;
+  if (timeSinceLastTransfer >= waitTimeLimit){
+
+    // Turn off motors
+    digitalWrite(IN1, LOW);
+    digitalWrite(IN2, LOW);
+    digitalWrite(IN3, LOW);
+    digitalWrite(IN4, LOW);
+
+    // display data
+    display.clearDisplay();
+    display.setCursor(0, 0);
+    display.println("No Signal");
+    display.println("Kill Motor");
+    display.display();
+
+  }
 }
