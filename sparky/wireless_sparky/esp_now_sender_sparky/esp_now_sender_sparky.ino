@@ -15,10 +15,12 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 
 // Joystick Analog
+const int click = 5;
 const int X_pin = A6;
 const int Y_pin = A7;
 int x_pos;
 int y_pos;
+int clickpress;
 
 const int maxspeed = 200;
 
@@ -26,6 +28,7 @@ const int maxspeed = 200;
 typedef struct struct_message {
   int speed;
   int direction;
+  int saw;
 } struct_message;
 struct_message myData;
 
@@ -46,6 +49,8 @@ void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
   display.println(myData.speed);
   display.print("Direction: ");
   display.println(myData.direction);
+  display.print("Saw: ");
+  display.println(myData.saw);  
   display.println();
   display.println(status == ESP_NOW_SEND_SUCCESS ? "Success" : "Fail");
   display.display();
@@ -99,6 +104,7 @@ void setup() {
   // init joystick
   pinMode(X_pin, INPUT);
   pinMode(Y_pin, INPUT);
+  pinMode(click, INPUT_PULLUP);
 
 }
 
@@ -106,6 +112,7 @@ void loop() {
 
   x_pos = analogRead(X_pin);
   y_pos = analogRead(Y_pin);
+  clickpress = digitalRead(click);
 
   // Motor
   if (x_pos < 1000){
@@ -127,7 +134,15 @@ void loop() {
   }
   else { // A off
     myData.direction = 0;
-  }   
+  }
+
+  // saw
+  if (clickpress == LOW) {
+    myData.saw = 1;
+  }
+  else {
+    myData.saw = 0;
+  }
 
   // Send message via ESP-NOW
   esp_err_t result = esp_now_send(receiverAddress, (uint8_t *) &myData, sizeof(myData));

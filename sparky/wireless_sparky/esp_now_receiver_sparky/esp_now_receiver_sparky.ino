@@ -21,7 +21,7 @@ int steps[4][4] = {
 unsigned long lastTransfer = 0;
 unsigned long currentTime;
 unsigned long timeSinceLastTransfer;
-const int waitTimeLimit = 1000;
+const int waitTimeLimit = 500;
 
 int direction  = 0;
 const int step_delay = 10;
@@ -47,10 +47,15 @@ int IN3 = 7;
 int IN4 = 8;
 int EN_B = 9;
 
+// saw motor
+int IN1_SAW = A1;
+int IN2_SAW = A2;
+
 // Define a message structure
 typedef struct struct_message {
   int speed;
   int direction;
+  int saw;
 } struct_message;
 struct_message myData;
 
@@ -102,6 +107,8 @@ void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len) {
   display.println(myData.speed);
   display.print("Direction: ");
   display.println(myData.direction);
+  display.print("Saw: ");
+  display.println(myData.saw);  
   display.println();
 
 
@@ -167,6 +174,16 @@ void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len) {
     }
   }
 
+  // saw
+  if (myData.saw) {
+    digitalWrite(IN1_SAW, LOW);
+    digitalWrite(IN2_SAW, HIGH);
+  }
+  else {
+    digitalWrite(IN1_SAW, LOW);
+    digitalWrite(IN2_SAW, LOW);   
+  }
+
   display.display();
 }
 
@@ -215,12 +232,17 @@ void setup() {
 	pinMode(IN2, OUTPUT);
 	pinMode(IN3, OUTPUT);
 	pinMode(IN4, OUTPUT);
+  pinMode(IN1_SAW, OUTPUT);
+  pinMode(IN2_SAW, OUTPUT);  
+
 	
 	// Turn off motors - Initial state
 	digitalWrite(IN1, LOW);
 	digitalWrite(IN2, LOW);
 	digitalWrite(IN3, LOW);
 	digitalWrite(IN4, LOW);
+	digitalWrite(IN1_SAW, LOW);
+	digitalWrite(IN2_SAW, LOW);  
 
   // init stepper
   pinMode(step_in1, OUTPUT);
@@ -241,6 +263,8 @@ void loop() {
     digitalWrite(IN2, LOW);
     digitalWrite(IN3, LOW);
     digitalWrite(IN4, LOW);
+    digitalWrite(IN1_SAW, LOW);
+    digitalWrite(IN2_SAW, LOW);
 
     // display data
     display.clearDisplay();
