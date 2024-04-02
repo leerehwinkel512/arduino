@@ -17,14 +17,14 @@ Adafruit_MPU6050 mpu;
 
 void setup() {
 
-  	// init display
-  	if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
-    		for(;;);
-  	}
+  // init display
+  if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
+      for(;;);
+  }
  	display.display();  // Adafruit logo
  	delay(2000);
-  	display.setTextSize(1);
-  	display.setTextColor(SSD1306_WHITE);
+  display.setTextSize(1);
+  display.setTextColor(SSD1306_WHITE);
 
 	// init MPU
 	if (!mpu.begin()) {
@@ -44,40 +44,39 @@ void loop() {
 	sensors_event_t a, g, temp;
 	mpu.getEvent(&a, &g, &temp);
 
-  	display.clearDisplay();
-  	display.setCursor(0, 0);
+  display.clearDisplay();
+  display.setCursor(0, 0);
 
-  	display.println("Accel (m/s^2): X,Y,Z");
+  display.println("Accel (m/s^2): X,Y,Z");
 	display.print(a.acceleration.x);
 	display.print(",");
 	display.print(a.acceleration.y);
 	display.print(",");
 	display.print(a.acceleration.z);
 
-  	display.println();
-  	display.println();  
-  	display.println("Gyro (deg/s): X,Y,Z");
+  display.println();
+  display.println();  
+  display.println("Gyro (deg/s): X,Y,Z");
 	display.print(g.gyro.x);
 	display.print(",");
 	display.print(g.gyro.y);
 	display.print(",");
 	display.print(g.gyro.z);
 
-  	// tilt angle
-  	float AcX = a.acceleration.x;
-  	float AcY = a.acceleration.y;
-  	float AcZ = a.acceleration.z;
+  // tilt angle
+  float AcX = a.acceleration.x;
+  float AcY = a.acceleration.y;
+  float AcZ = a.acceleration.z;
 
-  	float x_deg = RAD_TO_DEG * atan2(AcY, sqrt(AcX * AcX + AcZ * AcZ));
-  	float y_deg = RAD_TO_DEG * atan2(AcX, sqrt(AcY * AcY + AcZ * AcZ));
+  float x_deg = RAD_TO_DEG * atan2(AcY, sqrt(AcX * AcX + AcZ * AcZ));
+  float y_deg = RAD_TO_DEG * atan2(AcX, sqrt(AcY * AcY + AcZ * AcZ));
 
-  	display.println();
-  	display.println();  
-  	display.println("Tilt (deg): X,Y");
+  display.println();
+  display.println();  
+  display.println("Tilt (deg): X,Y");
 	display.print((int)x_deg);
 	display.print(",");
 	display.print((int)y_deg);  
-
 
 	display.display();
 

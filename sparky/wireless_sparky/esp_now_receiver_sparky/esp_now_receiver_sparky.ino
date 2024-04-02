@@ -18,10 +18,15 @@ int steps[4][4] = {
   {HIGH, LOW,  LOW,  HIGH}
 };
 
-unsigned long lastTransfer = 0;
 unsigned long currentTime;
+unsigned long lastTransfer = 0;
 unsigned long timeSinceLastTransfer;
 const int waitTimeLimit = 500;
+
+unsigned long lastSawButton = 0;
+unsigned long timeSinceLastSawButton;
+const int waitTimeSawLimit = 300;
+bool sawState = 0;
 
 int direction  = 0;
 const int step_delay = 10;
@@ -176,12 +181,27 @@ void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len) {
 
   // saw
   if (myData.saw) {
-    digitalWrite(IN1_SAW, LOW);
-    digitalWrite(IN2_SAW, HIGH);
-  }
-  else {
-    digitalWrite(IN1_SAW, LOW);
-    digitalWrite(IN2_SAW, LOW);   
+
+    currentTime = millis();
+    timeSinceLastSawButton = currentTime - lastSawButton;
+
+    if (timeSinceLastSawButton >= waitTimeSawLimit){
+
+      if (sawState){
+        // turn off saw
+        sawState = 0;
+        digitalWrite(IN1_SAW, LOW);
+        digitalWrite(IN2_SAW, LOW);          
+      }
+      else {
+        // turn on saw
+        sawState = 1;
+        digitalWrite(IN1_SAW, LOW);
+        digitalWrite(IN2_SAW, HIGH);
+      }
+
+      lastSawButton = millis();
+    }
   }
 
   display.display();
