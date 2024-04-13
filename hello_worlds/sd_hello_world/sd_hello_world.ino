@@ -1,6 +1,5 @@
 // Connect to SD reader
-// 5v
-// D11 MOSO
+// D11 MOSI
 // D12 MISO
 // D13 SCK
 // D7 CS
@@ -11,6 +10,7 @@ const int CS_PIN = 7;
 
 void setup() {
   Serial.begin(9600);
+  delay(2000);
   Serial.println("Init SD");
 
   pinMode(CS_PIN, OUTPUT);
@@ -28,11 +28,15 @@ void loop() {
 
   long timestamp = millis();
 
-  File datafile = SD.open("data.csv", FILE_WRITE);
-  datafile.print(timestamp);
-  datafile.print(",");
-  datafile.println("Hello World");
-  datafile.close();
+  File dataFile = SD.open("data.csv", FILE_WRITE);
+  if (dataFile) {
+    dataFile.print(timestamp);
+    dataFile.print(",");
+    dataFile.println("Hello World");
+    dataFile.close();
+  } else {
+    Serial.println("Error opening data.csv");
+  }
 
   delay(1000);
 
