@@ -3,7 +3,10 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 
-#include <SD.h>
+#include "SdFat.h"
+
+SdFat sd;
+SdFile dataFile;
 
 #define SD_CS_PIN 5
 
@@ -43,19 +46,20 @@ void setup() {
   // init SD
   pinMode(SD_CS_PIN, OUTPUT);
   
-  if(!SD.begin(SD_CS_PIN))
-  {
-    display.clearDisplay();
-    display.setCursor(0, 0);
-    display.println("SD Failure");
-    display.display();
-
-    for(;;);
+  if (!sd.begin(SD_CS_PIN, SPI_HALF_SPEED)) {
+    Serial.println("SD card initialization failed!");
+    return;
   }
 
-  File datafile = SD.open("data.csv", FILE_WRITE);
-  datafile.println("date,time,lat_dec,lng_dec,speed_mph,alt_ft");
-  datafile.close();
+  // Open the file in write mode, create it if it does not exist, truncate it if it exists.
+  if (!dataFile.open("data.csv", O_RDWR | O_CREAT | O_TRUNC)) {
+    Serial.println("Opening file failed!");
+  } else {
+    Serial.println("File opened for appending.");
+  }
+
+  dataFile.println("date,time,lat_dec,lng_dec,speed_mph,alt_ft");
+  dataFile.close();
 
   delay(1000);  
 
@@ -67,28 +71,28 @@ void loop() {
     gps.encode(Serial1.read());
     if (gps.location.isUpdated()){
 
-      // record data
-      File datafile = SD.open("data.csv", FILE_WRITE);
-
-      datafile.print(gps.date.month()); 
-      datafile.print("-");
-      datafile.print(gps.date.day());
-      datafile.print(",");
-      datafile.print(gps.time.hour()); 
-      datafile.print(":");
-      datafile.print(gps.time.minute()); 
-      datafile.print(":");
-      datafile.print(gps.time.second());
-      datafile.print(",");
-      datafile.print(gps.location.lat());
-      datafile.print(",");   
-      datafile.print(gps.location.lng());
-      datafile.print(",");
-      datafile.print(gps.speed.mph());
-      datafile.print(",");
-      datafile.print(gps.altitude.feet());
-      datafile.println();
-      datafile.close();
+      // log data
+      if (dataFile.open("data.csv", O_RDWR | O_AT_END)) {
+        dataFile.print(gps.date.month());
+        dataFile.print("-");
+        dataFile.print(gps.date.day());
+        dataFile.print(",");
+        dataFile.print(gps.time.hour());
+        dataFile.print(":");
+        dataFile.print(gps.time.minute());
+        dataFile.print(":");
+        dataFile.print(gps.time.second());
+        dataFile.print(",");
+        dataFile.print(gps.location.lat(), 6);
+        dataFile.print(",");
+        dataFile.print(gps.location.lng(), 6);
+        dataFile.print(",");
+        dataFile.print(gps.speed.mph());
+        dataFile.print(",");
+        dataFile.print(gps.altitude.feet());
+        dataFile.println();
+        dataFile.close();
+      }
       
       // display
       display.clearDisplay();
