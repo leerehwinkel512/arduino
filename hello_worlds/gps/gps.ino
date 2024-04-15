@@ -8,6 +8,8 @@
 SdFat sd;
 SdFile dataFile;
 
+const char* fileName = "gpsTracker.csv";
+
 #define SD_CS_PIN 5
 
 #include <TinyGPSPlus.h>
@@ -28,40 +30,49 @@ void setup() {
 
   // init display
   if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
-    for(;;);
+    while(true); // Halt execution
   }
   display.display();  // Adafruit logo
   delay(2000);
   display.setTextSize(1);
   display.setTextColor(SSD1306_WHITE);
+  display.clearDisplay();
+  display.setCursor(0, 0);
 
   // init gps serial
   Serial1.begin(9600, SERIAL_8N1, RXPin, TXPin);
-
-  display.clearDisplay();
-  display.setCursor(0, 0);
-  display.println("Searching... ");
-  display.display();
 
   // init SD
   pinMode(SD_CS_PIN, OUTPUT);
   
   if (!sd.begin(SD_CS_PIN, SPI_HALF_SPEED)) {
-    Serial.println("SD card initialization failed!");
-    return;
-  }
-
-  // Open the file in write mode, create it if it does not exist, truncate it if it exists.
-  if (!dataFile.open("data.csv", O_RDWR | O_CREAT | O_TRUNC)) {
-    Serial.println("Opening file failed!");
+    display.println("SD card init fail!");
+    display.display();
+    while(true); // Halt execution
   } else {
-    Serial.println("File opened for appending.");
+    display.println("SD card init success.");
+    display.display();
+    delay(2000);
   }
 
+  // Open file
+  if (!dataFile.open(fileName, O_RDWR | O_CREAT | O_APPEND)) {
+    display.println("Open file fail!");
+    display.display();
+    while(true); // Halt execution
+  } else {
+    display.println("Writing to file.");
+  }
+
+  // write header
+  dataFile.println("------------------RESTART-----------------");  
   dataFile.println("date,time,lat_dec,lng_dec,speed_mph,alt_ft");
   dataFile.close();
 
-  delay(1000);  
+  // begin GPS search
+  display.println("Searching... ");
+  display.display();
+  delay(5000);
 
 }
 
@@ -72,27 +83,26 @@ void loop() {
     if (gps.location.isUpdated()){
 
       // log data
-      if (dataFile.open("data.csv", O_RDWR | O_AT_END)) {
-        dataFile.print(gps.date.month());
-        dataFile.print("-");
-        dataFile.print(gps.date.day());
-        dataFile.print(",");
-        dataFile.print(gps.time.hour());
-        dataFile.print(":");
-        dataFile.print(gps.time.minute());
-        dataFile.print(":");
-        dataFile.print(gps.time.second());
-        dataFile.print(",");
-        dataFile.print(gps.location.lat(), 6);
-        dataFile.print(",");
-        dataFile.print(gps.location.lng(), 6);
-        dataFile.print(",");
-        dataFile.print(gps.speed.mph());
-        dataFile.print(",");
-        dataFile.print(gps.altitude.feet());
-        dataFile.println();
-        dataFile.close();
-      }
+      dataFile.open(fileName, O_RDWR | O_APPEND);
+      dataFile.print(gps.date.month());
+      dataFile.print("-");
+      dataFile.print(gps.date.day());
+      dataFile.print(",");
+      dataFile.print(gps.time.hour());
+      dataFile.print(":");
+      dataFile.print(gps.time.minute());
+      dataFile.print(":");
+      dataFile.print(gps.time.second());
+      dataFile.print(",");
+      dataFile.print(gps.location.lat(), 6);
+      dataFile.print(",");
+      dataFile.print(gps.location.lng(), 6);
+      dataFile.print(",");
+      dataFile.print(gps.speed.mph());
+      dataFile.print(",");
+      dataFile.print(gps.altitude.feet());
+      dataFile.println();
+      dataFile.close();
       
       // display
       display.clearDisplay();
@@ -124,7 +134,7 @@ void loop() {
       display.print(gps.speed.mph()); 
       display.println();
 
-      display.print("Course (deg): "); 
+      display.print("Course (deg): ");
       display.print(gps.course.deg());
       display.println();
 
@@ -136,6 +146,7 @@ void loop() {
     }
   }
 
+  // log GPS every 5 seconds
   delay(5000);
 
 }
