@@ -21,7 +21,7 @@ typedef struct struct_message {
 struct_message myData;
 
 // MAC Address of receiver
-uint8_t receiverAddress[] = {0xEC, 0xDA, 0x3B, 0x54, 0xE1, 0x60};
+uint8_t receiverAddress[] = {0xC8, 0x2E, 0x18, 0xF0, 0x08, 0x5C};
 
 // Peer info
 esp_now_peer_info_t peerInfo;
