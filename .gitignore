@@ -2,3 +2,4 @@
 ai_chat_scroll/arduino_secrets.h
 hello_worlds/esp_now_test/.DS_Store
 .DS_Store
+hello_worlds/aws_iot_esp32/secrets.h
