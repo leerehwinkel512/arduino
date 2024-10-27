@@ -2,7 +2,7 @@
 
 #define PIN 5 // LED strip pin
 #define BUTTON_PIN 10 // Button pin
-#define NUM_PATTERN 4
+#define NUM_PATTERN 5
 #define NUMPIXELS 150
 #define BRIGHTNESS 25 // max = 255
 
@@ -66,7 +66,10 @@ void loop() {
       break;
     case 3:
       halloweenFade();
-      break;      
+      break;
+    case 4:
+      blueSea();
+      break;          
     default:
       clearStrip();
       break;
@@ -161,6 +164,35 @@ void halloweenRace() {
                 strip.setPixelColor(i, strip.Color(255, 0, 255));  // Purple
             } else {
                 strip.setPixelColor(i, strip.Color(255, 60, 0));  // Orange
+            }
+        }
+        strip.show();
+
+        // Delay with button check
+        for(int i = 0; i < 50; i++) {
+            if (checkButton()) {
+                return;
+            }
+            delay(10);
+        }
+    }
+}
+
+
+void blueSea() {
+    const int groupSize = 5;
+    
+    // moves the offset through all positions
+    for(int offset = 0; offset < NUMPIXELS; offset++) {
+
+        // sets all pixels with offset
+        for(int i = 0; i < NUMPIXELS; i++) {
+            int position = (i + offset) % (groupSize * 2);
+            
+            if(position < groupSize) {
+                strip.setPixelColor(i, strip.Color(255, 0, 255));  // Purple
+            } else {
+                strip.setPixelColor(i, strip.Color(0, 0, 255));  // Blue
             }
         }
         strip.show();
