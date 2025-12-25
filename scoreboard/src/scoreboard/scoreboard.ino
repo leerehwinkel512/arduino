@@ -57,7 +57,7 @@ void setup() {
   Serial.begin(115200);
   delay(1000);
   
-  Serial.println("Initializing Best Child Scoreboard...");
+  Serial.println("Initializing Hugs for Mom...");
   
   // Initialize buttons
   pinMode(BTN_HENRY, INPUT_PULLUP);
@@ -131,8 +131,12 @@ void setup() {
     if (finnScore < 0 || finnScore > 9999) finnScore = 0;
   }
   
-  Serial.printf("Loaded scores - Henry: %d, Turner: %d, Finn: %d\n", 
-                henryScore, turnerScore, finnScore);
+  Serial.print("Loaded scores - Henry: ");
+  Serial.print(henryScore);
+  Serial.print(", Turner: ");
+  Serial.print(turnerScore);
+  Serial.print(", Finn: ");
+  Serial.println(finnScore);
   
   // Setup button state tracking
   buttons[0] = {BTN_HENRY, &henryScore, ADDR_HENRY, "Henry", true, true, 0, 0, true, false};
@@ -147,9 +151,7 @@ void setup() {
   // Initial full refresh display
   updateDisplayFull();
   
-  Serial.println("Scoreboard ready!");
-  Serial.println("Quick press = +1, Hold 600ms = -1");
-  Serial.println("Hold ALL 3 buttons on startup = FULL RESET");
+  Serial.println("Ready! Press = +1, Hold = -1");
 }
 
 // Full refresh - use only on startup
@@ -192,9 +194,9 @@ void drawScreen() {
   display.setFont(&FreeMono12pt7b);
   int16_t tbx, tby; 
   uint16_t tbw, tbh;
-  display.getTextBounds("BEST CHILD POINTS", 0, 0, &tbx, &tby, &tbw, &tbh);
+  display.getTextBounds("HUGS FOR MOM", 0, 0, &tbx, &tby, &tbw, &tbh);
   display.setCursor((296 - tbw) / 2, 20);
-  display.print("BEST CHILD POINTS");
+  display.print("HUGS FOR MOM");
   
   // Draw dividing lines
   display.drawLine(98, 30, 98, 128, GxEPD_BLACK);
@@ -223,21 +225,14 @@ void drawChildScore(const char* name, int score, int centerX) {
   display.setCursor(centerX - tbw/2, 95);
   display.print(scoreStr);
   
-  // Draw crown on sole leader
-  int maxScore = max(henryScore, max(turnerScore, finnScore));
-  if (score == maxScore && score > 0) {
-    int countAtMax = (henryScore == maxScore) + (turnerScore == maxScore) + (finnScore == maxScore);
-    if (countAtMax == 1) {
-      drawCrown(centerX, 110);
-    }
-  }
+  // Heart for everyone
+  drawHeart(centerX, 110);
 }
 
-void drawCrown(int x, int y) {
-  display.fillTriangle(x-10, y, x-8, y-8, x-6, y, GxEPD_BLACK);
-  display.fillTriangle(x-3, y, x, y-10, x+3, y, GxEPD_BLACK);
-  display.fillTriangle(x+6, y, x+8, y-8, x+10, y, GxEPD_BLACK);
-  display.fillRect(x-10, y, 20, 8, GxEPD_BLACK);
+void drawHeart(int x, int y) {
+  display.fillCircle(x - 5, y - 3, 5, GxEPD_BLACK);
+  display.fillCircle(x + 5, y - 3, 5, GxEPD_BLACK);
+  display.fillTriangle(x - 10, y - 1, x + 10, y - 1, x, y + 10, GxEPD_BLACK);
 }
 
 void saveScore(int addr, int score) {
@@ -277,7 +272,9 @@ void handleButtons() {
           if (!btn.actionTaken) {
             // Quick press - INCREMENT
             (*btn.score)++;
-            Serial.printf("%s +1 -> %d\n", btn.name, *btn.score);
+            Serial.print(btn.name);
+            Serial.print(" +1 -> ");
+            Serial.println(*btn.score);
             saveScore(btn.addrEEPROM, *btn.score);
             updateDisplayPartial();
           }
@@ -292,7 +289,9 @@ void handleButtons() {
           // Held long enough - DECREMENT
           if (*btn.score > 0) {
             (*btn.score)--;
-            Serial.printf("%s -1 (hold) -> %d\n", btn.name, *btn.score);
+            Serial.print(btn.name);
+            Serial.print(" -1 (hold) -> ");
+            Serial.println(*btn.score);
             saveScore(btn.addrEEPROM, *btn.score);
             updateDisplayPartial();
           }
